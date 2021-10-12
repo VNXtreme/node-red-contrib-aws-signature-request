@@ -48,10 +48,20 @@ module.exports = function (RED) {
         region,
         method
       }
+
+      /* If method is POST, add body to the signing opts */
+      if (msg.method == "POST") {
+        opts.body = msg.payload;
+      }
+      
       // aws4.sign() will sign and modify these options, ready to pass to axios request
       let config = aws4.sign(opts, keys);
       config.url = url;
 
+      /* If method is POST, add data field in request */
+      if (msg.method == "POST") {
+        config.data = msg.payload;
+      }
       axios(config)
         .then(function (response) {
           msg.payload = response.data;
